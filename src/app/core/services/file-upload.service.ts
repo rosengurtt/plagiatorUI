@@ -34,11 +34,9 @@ export class FileUploadService {
 
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            console.log(xhr.response);
+          if (xhr.status === 200) {;
             resolve(JSON.parse(xhr.response));
           } else {
-            console.log(xhr.status)
             reject(xhr.response);
           }
         }

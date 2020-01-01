@@ -6,7 +6,7 @@ import { AudioControlsEventsService } from '../services/audio-controls-events.se
 import { AudioControlsEventTypes } from '../services/audio-controls-event-types.enum';
 import { Midi2JsonService } from '../../../songs-library/services/midi-to-json.service';
 import { SongJson } from '../../../../core/models/midi/song-json/song-json';
-import { SliderComponent } from '../slider/slider.component';
+import { SliderComponent } from '../../slider/slider.component';
 import { AudioControlEvent } from '../services/audio-control-event';
 
 declare var MIDIjs: any;

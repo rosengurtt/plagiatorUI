@@ -6,6 +6,7 @@ import { Band } from '../../core/models/band';
 import { FileUploadService } from '../../core/services/file-upload.service';
 import { SongSearchService } from '../../core/services/song-search.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-songs-library',
@@ -27,10 +28,12 @@ export class SongsLibraryComponent implements OnInit {
   listFilter: string;
   subscription: Subscription;
 
-  constructor(private songService: SongsRepositoryService,
-              private fileUploadService: FileUploadService,
-              private songSearchService: SongSearchService) {
-    this.subscription = songSearchService.saerchTermAnnounce$.subscribe(
+  constructor(
+    private router: Router,
+    private songService: SongsRepositoryService,
+    private fileUploadService: FileUploadService,
+    private songSearchService: SongSearchService) {
+    this.subscription = songSearchService.searchTermAnnounce.subscribe(
       term => {
         this.listFilter = term;
       });
@@ -50,6 +53,7 @@ export class SongsLibraryComponent implements OnInit {
     this.refreshDropDowns();
   }
   async selectSong(songId: string) {
+    this.router.navigate(['/song-panel/', songId])
     this.selectedSongId = songId;
   }
 

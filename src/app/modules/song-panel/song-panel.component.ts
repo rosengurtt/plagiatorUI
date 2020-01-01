@@ -1,5 +1,7 @@
-import { Component, Input, OnDestroy, OnChanges, SimpleChange } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnChanges, SimpleChange, OnInit } from '@angular/core';
+import { Subscription, Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs/operators';
 
 import { Song } from '../../core/models/song';
 import { SongJson } from '../../core/models/midi/song-json/song-json';
@@ -10,6 +12,7 @@ import { AudioControlsEventsService } from '../../modules/song-panel/audio-contr
 import { AudioControlEvent } from '../../modules/song-panel/audio-controls/services/audio-control-event';
 import { AudioControlsEventTypes } from '../../modules/song-panel/audio-controls/services/audio-controls-event-types.enum';
 
+
 declare var MIDIjs: any;
 
 @Component({
@@ -17,14 +20,15 @@ declare var MIDIjs: any;
     templateUrl: './song-panel.component.html',
     styleUrls: ['./song-panel.component.scss']
 })
-export class SongPanelComponent implements OnChanges {
+export class SongPanelComponent implements OnChanges, OnInit {
     song: Song;
     songJson: SongJson;
-    @Input() selectedSongId: string;
+    selectedSongId: string;
     isCollapsed = false;
     subscriptionAudioEvents: Subscription;
 
     constructor(
+        private route: ActivatedRoute,
         private songsService: SongsRepositoryService,
         private midi2JsonService: Midi2JsonService,
         private audioControlsEventsService: AudioControlsEventsService) {
@@ -33,6 +37,13 @@ export class SongPanelComponent implements OnChanges {
                 this.handleEvent(event);
             });
     }
+    ngOnInit() {
+        this.route.paramMap.subscribe(params => {
+            this.selectedSongId = params.get('selectedSongId');
+            this.GetSongData();
+        });
+    }
+
     private handleEvent(event: AudioControlEvent) {
         switch (event.type) {
             case AudioControlsEventTypes.collapseDisplay:
@@ -67,7 +78,7 @@ export class SongPanelComponent implements OnChanges {
                     this.song.band = new Band();
                     this.song.band._id = data.band;
                     this.song.band.name = data.band.name;
-                 }
+                }
             );
             this.song.midiFile = await (this.songsService.getSongMidiById(this.selectedSongId));
             this.songJson = this.midi2JsonService.getMidiObject(this.song.midiFile);

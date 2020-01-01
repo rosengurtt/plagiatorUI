@@ -7,7 +7,7 @@ declare var MIDIjs: any;
 @Component({
   selector: 'slider-soret',
   templateUrl: './slider.component.html',
-  styles: ['.draggable {cursor: move; }']
+  styles: ['./slider.component.scss']
 })
 export class SliderComponent implements AfterViewChecked {
   @Input() sliderId: string;

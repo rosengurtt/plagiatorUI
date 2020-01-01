@@ -136,7 +136,6 @@ export class Track {
                 delta: 0, type: 8, subtype: 11, param1: 7, param2: volume * this._maxVolume,
                 ticksSinceStart: 0, channel: track._channel
             });
-
             // unshift inserts at the begining of the array
             track.events.unshift(event);
         }

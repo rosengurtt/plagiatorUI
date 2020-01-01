@@ -1,5 +1,6 @@
-<div class="row" *ngIf='song'>
-    <div style="padding:15px">Song: {{song.name}} - {{song._id}}</div>
+<div class="row" *ngIf='song.name'>
+    <div style="padding:25px">Song: {{song.name}} - {{song._id}}</div>
+    <div style="padding:25px">Band: {{song.band.name}}</div>
     <div style="padding:35px;width:100%" *ngIf='songJson'>
         <audio-controls [song]="songJson"></audio-controls>
         <song-display [song]="songJson" [isCollapsed]="isCollapsed"></song-display>

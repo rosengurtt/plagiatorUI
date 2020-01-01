@@ -11,20 +11,30 @@ import { SvgBoxService } from './song-display/services/svg-box.service';
 import { SongsRepositoryService } from '../../core/services/songs-repository.service';
 import { AudioControlsComponent } from './audio-controls/audio-controls.component';
 import { CommonModule } from '@angular/common';
-import { AudioControlsModule } from './audio-controls/audio-controls.module';
-import { SongDisplayModule } from './song-display/song-display.module';
 import { SongPanelComponent } from './song-panel.component';
 import { AudioControlsEventsService } from './audio-controls/services/audio-controls-events.service';
+import { SliderComponent } from './slider/slider.component';
+import { AudioButtonsComponent } from './audio-controls/audio-buttons/audio-buttons.component';
+import { AudioControlBarComponent } from './audio-controls/audio-control-bar/audio-control-bar.component';
+import { AudioControlsService } from './audio-controls/services/audio-controls.service';
+import { RouterModule } from '@angular/router';
+
 
 @NgModule({
     declarations: [
-        SongPanelComponent
+        SongPanelComponent,
+        SliderComponent,
+        AudioControlsComponent,
+        AudioButtonsComponent,
+        AudioControlBarComponent,
+        SongDisplayComponent,
+        TrackDisplayComponent,
+        TracksCollapsedComponent
     ],
     imports: [
         FormsModule,
         CommonModule,
-        SongDisplayModule,
-        AudioControlsModule
+        RouterModule
     ],
     providers: [
         SongsRepositoryService,
@@ -33,10 +43,13 @@ import { AudioControlsEventsService } from './audio-controls/services/audio-cont
         MidiFileCheckerService,
         TrackDisplayService,
         SvgBoxService,
-        AudioControlsEventsService
+        AudioControlsEventsService,
+        AudioControlsService,
+        TrackDisplayService
     ],
     exports: [
-        SongPanelComponent
+        SongPanelComponent,
+        SliderComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
