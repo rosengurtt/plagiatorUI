@@ -1,0 +1,10 @@
+<div *ngIf='song'>
+    <div *ngIf="!isCollapsed">
+        <div *ngFor="let track of song.notesTracks;let i = index;">
+            <track-display [song]="song" [trackNotesNumber]="i" ></track-display>
+        </div>
+    </div>
+    <div *ngIf="isCollapsed">
+            <tracks-collapsed [song]="song" ></tracks-collapsed>
+    </div>
+</div>

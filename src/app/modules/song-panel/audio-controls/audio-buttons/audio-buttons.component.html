@@ -1,0 +1,51 @@
+<div class="row">
+    <div class="col-md-6 col-lg-6">
+        <button type="button" class="btn btn-danger audio-button" (click)="goToBeginning()">
+            <span class="material-icons md-24">fast_rewind</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="playSong()">
+            <span class="material-icons md-24">play_arrow</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="pauseSong()">
+            <span class="material-icons md-24">pause</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="stopSong()">
+            <span class="material-icons md-24">stop</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="goToEnd()">
+            <span class="material-icons md-24">fast_forward</span>&nbsp;
+        </button>
+        <span>&nbsp;&nbsp;&nbsp;</span>
+        <button type="button" class="btn btn-danger audio-button" (click)="zoomxIn()">
+            <span class="material-icons md-24">zoom_in</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="zoomxOut()">
+            <span class="material-icons md-24">zoom_out</span>&nbsp;
+        </button>
+        <span>&nbsp;&nbsp;&nbsp;</span>
+        <button type="button" class="btn btn-danger audio-button" (click)="moveLeft()">
+            <span class="material-icons md-24">chevron_left</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="moveRight()">
+            <span class="material-icons md-24">chevron_right</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="moveDown()">
+            <span class="material-icons md-24">keyboard_arrow_up</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="moveUp()">
+            <span class="material-icons md-24">keyboard_arrow_down</span>&nbsp;
+        </button>
+        <span>&nbsp;&nbsp;&nbsp;</span>
+    </div>
+    <div class="col-md-6 col-lg-6">
+        <img src="/assets/images/metronome.png" style="float:left" (click)="resetTempo()">
+
+        <input type="text" class="form-control input-sm" [ngModel]="bpm" (ngModelChange)="tempoChange($event)"
+            style="float:left;height: 42px;width:50px;margin:1px 6px 2px 6px" />
+        <button type="button" class="btn btn-danger audio-button" (click)="collapseExpand()">
+            <span class="material-icons md-24">{{get_collapsed_expand_icon()}}</span>&nbsp;
+        </button>
+        <button type="button" class="btn btn-danger audio-button" (click)="reset()">
+            <span class="material-icons md-24">refresh</span>&nbsp;
+        </button>
+    </div>
