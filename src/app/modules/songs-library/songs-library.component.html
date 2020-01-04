@@ -42,26 +42,31 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col">
+		<div class="col col-lg-6" style="padding:20px">
+			<h2>Upload midi files</h2>
+			<div>Create a zip file that has a folder structure with the music style in the root,
+				the bands as folders and the songs as files inside the folders. The songs will
+				be extracted from the zip file and assigned music style and band name as per the
+				folder names.
+			</div>
 			<form id="formSongUpload" action="http:localhost:3000/songsLibrary" enctype="multipart/form-data"
 				method="post" class="form-horizontal">
-				<div class="form-group">
-					<label for="songName" class="col-sm-3 control-label">Upload file</label>
-					<label class="btn btn-default btn-file">Browse
+				<div class="form-group" style="padding:20px">
+					<label class="btn btn-danger btn-file">Browse
 						<input type="file" style="display: none;" name="musicFile" (change)="fileChange(input)"
 							#input />
 					</label>
-					<label id="fileSelected">{{selectedFileName}}{{uploadResult}}</label>
-					<button *ngIf='selectedFileName!==""' class="btn btn-default btn-file"
+				</div>
+				<div>
+					<label id="fileSelected"  style="padding:20px">{{selectedFileName}}{{uploadResult}}</label>
+					<button *ngIf='selectedFileName!==""' class="btn btn-danger btn-file"
 						(click)='UploadHandler()'>Upload
 					</button>
 				</div>
 			</form>
 		</div>
+		<div class="col col-lg-6" style="padding:20px">
+Aca va la cancion seleccionada
+		</div>
 	</div>
 </div>
-<!--
-<div class="row">
-	<song-panel [selectedSongId]="selectedSongId"></song-panel>
-</div>
--->

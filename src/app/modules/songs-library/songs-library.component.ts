@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Song } from '../../core/models/song';
 import { SongsRepositoryService } from '../../core/services/songs-repository.service';
 import { MusicStyle } from '../../core/models/music-style';
@@ -7,6 +7,8 @@ import { FileUploadService } from '../../core/services/file-upload.service';
 import { SongSearchService } from '../../core/services/song-search.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { SongsLibraryEventsService } from './services/songs-library-events.service';
+import { SongsLibraryEventTypes } from './services/songs-library-event-types.enum';
 
 @Component({
   selector: 'app-songs-library',
@@ -14,6 +16,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./songs-library.component.scss']
 })
 export class SongsLibraryComponent implements OnInit {
+  @Output() songSelected: EventEmitter<Song> = new EventEmitter<Song>();
   uploadUrl = 'http://localhost:9001/api/uploads';
   errorMessage: string;
   styles: MusicStyle[];
@@ -30,6 +33,7 @@ export class SongsLibraryComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private songsLibraryEventsService: SongsLibraryEventsService,
     private songService: SongsRepositoryService,
     private fileUploadService: FileUploadService,
     private songSearchService: SongSearchService) {
@@ -53,8 +57,17 @@ export class SongsLibraryComponent implements OnInit {
     this.refreshDropDowns();
   }
   async selectSong(songId: string) {
-    this.router.navigate(['/song-panel/', songId])
+    this.router.navigate(['/song-panel/', songId]);
     this.selectedSongId = songId;
+
+    this.songService.getSongById(songId).subscribe(
+      data => {
+        const eventData: any = {_id: songId, songName: data.name, bandName: data.band.name };
+        console.log("esta es la data que mando con el evento")
+        console.log(eventData)
+        this.songsLibraryEventsService.raiseEvent(SongsLibraryEventTypes.songSelected, eventData);
+      }
+    );
   }
 
   refreshDropDowns(): any {
@@ -95,6 +108,7 @@ export class SongsLibraryComponent implements OnInit {
     this.uploadResult = result.Result;
     this.selectedFileName = '';
   }
+
 
   OnDestroy() {
     // prevent memory leak when component destroyed

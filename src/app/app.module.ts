@@ -10,6 +10,7 @@ import { HomeComponent } from './modules/home/home.component';
 import { SongSearchService } from './core/services/song-search.service';
 import { SongsLibraryModule } from './modules/songs-library/songs-library.module';
 import { SongPanelModule } from './modules/song-panel/song-panel.module';
+import { SongsLibraryEventsService } from './modules/songs-library/services/songs-library-events.service';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { SongPanelModule } from './modules/song-panel/song-panel.module';
     SongPanelModule
   ],
   providers: [
-    SongSearchService
+    SongSearchService,
+    SongsLibraryEventsService
   ],
   bootstrap: [AppComponent]
 })
