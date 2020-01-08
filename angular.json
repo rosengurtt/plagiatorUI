@@ -34,7 +34,7 @@
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
               "src/assets/midijs/midi.js",
-              "src/assets/midijs/libtimidity.js",
+              "src/assets/midijs/libtimidity.js"
             ]
           },
           "configurations": {

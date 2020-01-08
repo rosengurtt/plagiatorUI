@@ -1,9 +1,9 @@
 import { Midi2JsonService } from './midi-to-json.service';
-import { Uint8Array2ArrayBuffer } from '../../../core/helpers/uint8array-to-arraybuffer';
-import { MidiFileCheckerService } from './midi-file-checker.service';
-import { SongJson } from '../../../core/models/midi/song-json/song-json';
-import { MidiEvent } from '../../../core/models/midi/midi-event';
-import { Track } from '../../../core/models/midi/song-json/track';
+import { Uint8Array2ArrayBuffer } from '../../../helpers/uint8array-to-arraybuffer';
+import { MidiFileCheckerService } from '../midi-file-checker.service';
+import { SongJson } from './song-json';
+import { MidiEvent } from '../midi-event';
+import { Track } from './track';
 
 
 describe('Test of Midi2JsonService: midi -> json', () => {

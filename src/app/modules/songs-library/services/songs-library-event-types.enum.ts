@@ -1,3 +1,4 @@
 export enum SongsLibraryEventTypes {
-    songSelected
+    songSelected,
+    panelClosed
 }

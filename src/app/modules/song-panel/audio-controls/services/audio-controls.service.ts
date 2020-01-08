@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { Midi2JsonService } from '../../../songs-library/services/midi-to-json.service';
+// '../../../songs-library/services/midi-to-json.service';
+import { Midi2JsonService } from '../../../../core/models/midi/song-json/midi-to-json.service';
 import { SongJson } from '../../../../core/models/midi/song-json/song-json';
 import { Uint8Array2ArrayBuffer } from '../../../../core/helpers/uint8array-to-arraybuffer';
 import { AudioControlEvent } from '../../audio-controls/services/audio-control-event';

@@ -105,33 +105,6 @@
         return bv;
     }
 
-    function require_script(file, callback) {
-        var script = document.getElementsByTagName('script')[0]
-        newjs = document.createElement('script');
-        // IE
-        newjs.onreadystatechange = function () {
-            console.log("IE soreton")
-            if (newjs.readyState === 'loaded' || newjs.readyState === 'complete') {
-                newjs.onreadystatechange = null;
-                callback();
-            }
-        };
-        
-        // others
-        newjs.onload = function () {
-            callback();
-        };
-
-        newjs.onerror = function () {
-            MIDIjs.message_callback('Error: Cannot load  JavaScript file ' + file);
-            return;
-        }
-
-        newjs.src = file;
-        newjs.type = 'text/javascript';
-        script.parentNode.insertBefore(newjs, script);
-    }
-
     function get_next_wave(ev) {
         var player_event = new Event('PlayProgress');
         player_event.time = context.currentTime - start_time;
@@ -311,32 +284,7 @@
         MIDIjs.player_callback(player_event);
     }
 
-    function play_bgsound(url) {
-        stop_bgsound();
 
-        var sounddiv = document.getElementById('scorioMIDI');
-        if (!sounddiv) {
-            sounddiv = document.createElement('div');
-            sounddiv.setAttribute('id', 'scorioMIDI');
-
-            // hack: without the nbsp or some other character the bgsound will not be inserted
-            sounddiv.innerHTML = '&nbsp;<bgsound src="' + url + '" volume="100"/>';
-            document.body.appendChild(sounddiv);
-        } else {
-            sounddiv.lastChild.setAttribute('src', url);
-        }
-        source = sounddiv;
-        MIDIjs.message_callback('Playing ' + url + ' ...');
-    }
-
-    function stop_bgsound() {
-        if (source) {
-            var sounddiv = source;
-            sounddiv.lastChild.setAttribute('src', 'midi/silence.mid');
-            source = 0;
-        }
-        MIDIjs.message_callback(audio_status);
-    }
 
     function play_object(url) {
         stop_object();

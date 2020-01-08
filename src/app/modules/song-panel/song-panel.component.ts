@@ -1,16 +1,18 @@
 import { Component, OnChanges, SimpleChange, OnInit } from '@angular/core';
 import { Subscription, Observable } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 
 import { Song } from '../../core/models/song';
 import { SongJson } from '../../core/models/midi/song-json/song-json';
 import { SongsRepositoryService } from '../../core/services/songs-repository.service';
-import { Midi2JsonService } from '../songs-library/services/midi-to-json.service';
+import { Midi2JsonService } from '../../core/models/midi/song-json/midi-to-json.service';
 import { Band } from '../../core/models/band';
 import { AudioControlsEventsService } from '../../modules/song-panel/audio-controls/services/audio-controls-events.service';
 import { AudioControlEvent } from '../../modules/song-panel/audio-controls/services/audio-control-event';
 import { AudioControlsEventTypes } from '../../modules/song-panel/audio-controls/services/audio-controls-event-types.enum';
+import { SongsLibraryEventsService } from '../songs-library/services/songs-library-events.service';
+import { SongsLibraryEventTypes } from '../songs-library/services/songs-library-event-types.enum';
 
 
 declare var MIDIjs: any;
@@ -28,9 +30,11 @@ export class SongPanelComponent implements OnChanges, OnInit {
     subscriptionAudioEvents: Subscription;
 
     constructor(
-        private route: ActivatedRoute,
+        private router: Router,
+        private activatedRoute: ActivatedRoute,
         private songsService: SongsRepositoryService,
         private midi2JsonService: Midi2JsonService,
+        private songsLibraryEventsService: SongsLibraryEventsService,
         private audioControlsEventsService: AudioControlsEventsService) {
         this.subscriptionAudioEvents = this.audioControlsEventsService
             .getEvents().subscribe(event => {
@@ -38,7 +42,7 @@ export class SongPanelComponent implements OnChanges, OnInit {
             });
     }
     ngOnInit() {
-        this.route.paramMap.subscribe(params => {
+        this.activatedRoute.paramMap.subscribe(params => {
             this.selectedSongId = params.get('selectedSongId');
             this.GetSongData();
         });
@@ -83,6 +87,10 @@ export class SongPanelComponent implements OnChanges, OnInit {
             this.song.midiFile = await (this.songsService.getSongMidiById(this.selectedSongId));
             this.songJson = this.midi2JsonService.getMidiObject(this.song.midiFile);
         }
+    }
+    closePanel(songId){
+        this.songsLibraryEventsService.raiseEvent(SongsLibraryEventTypes.panelClosed, songId);
+        this.router.navigate(['/songs-library']);
     }
 }
 

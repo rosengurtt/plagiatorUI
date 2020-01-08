@@ -38,9 +38,6 @@ export class Track {
         return this._volume;
     }
 
-
-
-
     get Notes(): MidiEvent[] {
         return this.getEventsOfType(MidiEventType.Note, MidiEventType.PitchBend);
     }
@@ -71,6 +68,80 @@ export class Track {
         }
         if (quantity > 0) { return (total / (quantity * this._maxVolume)); }
         return 0.5;
+    }
+
+    private changeSliceVolume(volume: number, track: Track): Track {
+
+        let trackHasVolumeChangeEvents = false;
+        for (let i = 0; i < track.events.length; i++) {
+            let event = track.events[i];
+            if (event.isVolumeChange()) {
+                event.param2 = volume * this._maxVolume;
+                trackHasVolumeChangeEvents = true;
+            }
+        }
+        // if track has not volume change events, insert one at the beginning
+        if (!trackHasVolumeChangeEvents) {
+            let event = new MidiEvent({
+                delta: 0, type: 8, subtype: 11, param1: 7, param2: volume * this._maxVolume,
+                ticksSinceStart: 0, channel: track._channel
+            });
+            // unshift inserts at the begining of the array
+            track.events.unshift(event);
+        }
+        return track;
+    }
+
+    // Looks for the last event of type "type" before a specific tick, creates a clone with a delta of 0, and adds it to the events
+    // array of the track
+    private cloneLastEventOfTypeBeforeTickAndAddItToBeginning(type: MidiEventType, tick: number, track: Track): Track {
+        let event = this.getLatestEventOfTypeBeforeTick(type, tick);
+        if (event) {
+            let clone = new MidiEvent(event);
+            clone.delta = 0;
+            clone.ticksSinceStart = 0;
+            track.events.push(clone);
+        }
+        return track;
+    }
+
+    private getVolumeChanges(): number[] {
+        let returnArray: number[] = [];
+        let volumeChangeEvents = this.getEventsOfType(MidiEventType.VolumeChange);
+        for (let i = 0; i < volumeChangeEvents.length; i++) {
+            returnArray.push(volumeChangeEvents[i].param2);
+        }
+        return returnArray;
+    }
+
+    public getEventsOfType(type1: MidiEventType, type2?: MidiEventType): MidiEvent[] {
+        let returnArray: MidiEvent[] = [];
+        for (let j = 0; j < this.events.length; j++) {
+            let event: MidiEvent = this.events[j];
+            if (event.isOfType(type1)) {
+                returnArray.push(event);
+            }
+            if (type2 && event.isOfType(type2)) {
+                returnArray.push(event);
+            }
+        }
+        return returnArray;
+    }
+
+    public addEndOfTrackEvent() {
+        let ticksSinceStartOfLastEvent = 0;
+        if (this.events.length > 0) {
+            // If there is already an end of track event don't add another one
+            let lastEvent: MidiEvent = this.events[this.events.length - 1];
+            if (lastEvent.isEndOfTrack()) {
+                return;
+            }
+            ticksSinceStartOfLastEvent = this.events[this.events.length - 1].ticksSinceStart;
+        }
+        this.events.push(new MidiEvent({
+            delta: 0, type: 0xFF, subtype: 0x2F, ticksSinceStart: ticksSinceStartOfLastEvent,
+            channel: this._channel
+        }));
     }
 
     // returns a clone of the original event. This is to avoid modifying the original song
@@ -118,83 +189,6 @@ export class Track {
             sliceTrack = this.changeSliceVolume(volume, sliceTrack);
         }
         return sliceTrack;
-    }
-
-    private changeSliceVolume(volume: number, track: Track): Track {
-
-        let trackHasVolumeChangeEvents = false;
-        for (let i = 0; i < track.events.length; i++) {
-            let event = track.events[i];
-            if (event.isVolumeChange()) {
-                event.param2 = volume * this._maxVolume;
-                trackHasVolumeChangeEvents = true;
-            }
-        }
-        // if track has not volume change events, insert one at the beginning
-        if (!trackHasVolumeChangeEvents) {
-            let event = new MidiEvent({
-                delta: 0, type: 8, subtype: 11, param1: 7, param2: volume * this._maxVolume,
-                ticksSinceStart: 0, channel: track._channel
-            });
-            // unshift inserts at the begining of the array
-            track.events.unshift(event);
-        }
-        return track;
-    }
-
-
-    // Looks for the last event of type "type" before a specific tick, creates a clone with a delta of 0, and adds it to the events
-    // array of the track
-    private cloneLastEventOfTypeBeforeTickAndAddItToBeginning(type: MidiEventType, tick: number, track: Track): Track {
-        let event = this.getLatestEventOfTypeBeforeTick(type, tick);
-        if (event) {
-            let clone = new MidiEvent(event);
-            clone.delta = 0;
-            clone.ticksSinceStart = 0;
-            track.events.push(clone);
-        }
-        return track;
-    }
-
-
-
-    private getVolumeChanges(): number[] {
-        let returnArray: number[] = [];
-        let volumeChangeEvents = this.getEventsOfType(MidiEventType.VolumeChange);
-        for (let i = 0; i < volumeChangeEvents.length; i++) {
-            returnArray.push(volumeChangeEvents[i].param2);
-        }
-        return returnArray;
-    }
-
-    public getEventsOfType(type1: MidiEventType, type2?: MidiEventType): MidiEvent[] {
-        let returnArray: MidiEvent[] = [];
-        for (let j = 0; j < this.events.length; j++) {
-            let event: MidiEvent = this.events[j];
-            if (event.isOfType(type1)) {
-                returnArray.push(event);
-            }
-            if (type2 && event.isOfType(type2)) {
-                returnArray.push(event);
-            }
-        }
-        return returnArray;
-    }
-
-    public addEndOfTrackEvent() {
-        let ticksSinceStartOfLastEvent = 0;
-        if (this.events.length > 0) {
-            // If there is already an end of track event don't add another one
-            let lastEvent: MidiEvent = this.events[this.events.length - 1];
-            if (lastEvent.isEndOfTrack()) {
-                return;
-            }
-            ticksSinceStartOfLastEvent = this.events[this.events.length - 1].ticksSinceStart;
-        }
-        this.events.push(new MidiEvent({
-            delta: 0, type: 0xFF, subtype: 0x2F, ticksSinceStart: ticksSinceStartOfLastEvent,
-            channel: this._channel
-        }));
     }
 
 }

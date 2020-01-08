@@ -1,48 +1,25 @@
 /* tslint:disable */
 import { Injectable } from '@angular/core';
+
 import { Md5 } from 'ts-md5/dist/md5';
+import { SongJson } from './song-json';
+import { MidiEvent } from '../midi-event';
+import { Track } from './track';
+import { ConcatenateUint8Array } from '../../../helpers/concatenate-uint8array';
+import { Binary2base64 } from '../../../helpers/binary-to-base64';
 
-import { SongJson } from '../../../core/models/midi/song-json/song-json';
-import { MidiEvent } from '../../../core/models/midi/midi-event';
-import { Track } from '../../../core/models/midi/song-json/track';
-import { ConcatenateUint8Array } from '../../../core/helpers/concatenate-uint8array';
-import { Binary2base64 } from '../../../core/helpers/binary-to-base64';
-
-let MIDIFile: any = require('midifile');
+const MIDIFile: any = require('midifile');
 
 @Injectable()
 export class Midi2JsonService {
 
-    // Converts from binary midi to json version
-    // Uses an external library "midiFile"
-    public getMidiObject(readBuffer: ArrayBuffer): SongJson {
-        // Creating the MIDIFile instance
-        let midiFile = new MIDIFile(readBuffer);
-        let format: number = midiFile.header.getFormat(); // 0, 1 or 2
-        let ticksPerBeat: number = midiFile.header.getTicksPerBeat();
-        let base64 = Binary2base64.convert(readBuffer);
-        let hash = Md5.hashStr(base64).toString();
-        let returnObject = new SongJson(format, ticksPerBeat, [], hash);
-        let tracksCount: number = midiFile.header.getTracksCount();
-
-        for (let i = 0; i < tracksCount; i++) {
-            // The external library "midiFile" produces a json object that is bascically
-            // a set of tracks, each containing a sequence of events. 
-            // We add an extra property to each event, that is the time in ticks 
-            // since the beginning of the song
-            returnObject.tracks[i] = this.addTimeSinceBeginningField(midiFile.getTrackEvents(i));
-        }
-        returnObject = this.normalizeSongJson(returnObject);
-        return returnObject;
-    };
 
     private addTimeSinceBeginningField(track: any): Track {
         let timeSinceBeginning = 0;
-        let returnValue: Track = new Track([]);
-        for (let i = 0; i < track.length; i++) {
-            let event = track[i];
+        const returnValue: Track = new Track([]);
+        for (const event of track) {
             timeSinceBeginning += event.delta;
-            let midiEventItem = new MidiEvent();
+            const midiEventItem = new MidiEvent();
             midiEventItem.delta = event.delta;
             midiEventItem.ticksSinceStart = timeSinceBeginning;
             midiEventItem.index = event.index;
@@ -74,14 +51,14 @@ export class Midi2JsonService {
     // We order the tracks on ascending order of instruments, except for the drums track 
     // (that uses channel 10) that goes at the end
     private normalizeSongJson(song: SongJson): SongJson {
-        let returnObject = new SongJson(song.format, song.ticksPerBeat, [], song.hash);
+        const returnObject = new SongJson(song.format, song.ticksPerBeat, [], song.hash);
 
         returnObject.tracks.push(this.getTrackWithChannelIndependentEvents(song));
 
         for (let i = 0; i < 16; i++) {
-            let tracks = this.getTracksWithEventsOfChannel(i, song);
-            for (let j = 0; j < tracks.length; j++) {
-                returnObject.tracks.push(tracks[j]);
+            const tracks = this.getTracksWithEventsOfChannel(i, song);
+            for (let t of tracks) {
+                returnObject.tracks.push(t);
             }
         }
         song = this.mergeTracksWhenPlayingSameInstrumentInSameChannel(returnObject);
@@ -89,12 +66,12 @@ export class Midi2JsonService {
     }
 
     private sortTracks(song: SongJson): SongJson {
-        let tracksNo = song.tracks.length;
+        const tracksNo = song.tracks.length;
         // Find drums track and send it to the end
         // Start with the second track, because the first has channel independent events
         for (let i = 1; i < tracksNo; i++) {
             if (song.tracks[i].channel === 9) {
-                let aux = song.tracks[i];
+                const aux = song.tracks[i];
                 for (let j = 0; j < tracksNo - i - 1; j++) {
                     song.tracks[i + j] = song.tracks[i + j + 1]
                 }
@@ -134,8 +111,8 @@ export class Midi2JsonService {
 
     // merges 2 tracks that have the same channel and instrument into 1
     private mergeTracks(song: SongJson, indexTrack1: number, indexTrack2: number): SongJson {
-        let track1 = song.tracks[indexTrack1];
-        let track2 = song.tracks[indexTrack2];
+        const track1 = song.tracks[indexTrack1];
+        const track2 = song.tracks[indexTrack2];
         // if index numbers are wrong, don't do anything
         if (indexTrack1 > song.tracks.length - 1 ||
             indexTrack2 > song.tracks.length - 1) {
@@ -146,7 +123,7 @@ export class Midi2JsonService {
         let j = 0; // counter for track 2
 
         while (j < track2.events.length) {
-            let event = track2.events[j];
+            const event = track2.events[j];
             while (track1.events[i].ticksSinceStart < event.ticksSinceStart &&
                 i < track1.events.length - 1) {
                 i++;
@@ -164,9 +141,9 @@ export class Midi2JsonService {
     // Used to check if 2 tracks can be merged. We want to merge only them if they never play both
     // in the same bar
     private tracksHaveNotesInSameBar(track1: Track, track2: Track, ticksPerBar: number): boolean {
-        let lastEventTrack1 = track1.events[track1.events.length - 1];
-        let lastEventTrack2 = track2.events[track2.events.length - 1];
-        let tickOfLastEventToCheck = lastEventTrack1.ticksSinceStart > lastEventTrack2.ticksSinceStart ?
+        const lastEventTrack1 = track1.events[track1.events.length - 1];
+        const lastEventTrack2 = track2.events[track2.events.length - 1];
+        const tickOfLastEventToCheck = lastEventTrack1.ticksSinceStart > lastEventTrack2.ticksSinceStart ?
             lastEventTrack2.ticksSinceStart : lastEventTrack1.ticksSinceStart;
         // check in each bar
         for (let i = 0; i <= tickOfLastEventToCheck / ticksPerBar; i++) {
@@ -179,8 +156,7 @@ export class Midi2JsonService {
     }
 
     private trackHasNotesInBar(track: Track, bar: number, ticksPerBar: number) {
-        for (let i = 0; i < track.events.length; i++) {
-            let event = track.events[i];
+        for (const event of track.events) {
             if (event.isNote() &&
                 event.ticksSinceStart >= ((bar - 1) * ticksPerBar) &&
                 event.ticksSinceStart <= ((bar) * ticksPerBar)) {
@@ -195,14 +171,13 @@ export class Midi2JsonService {
     // When there are events for this channel, but no patch change events, it returns an array with one track
     // Otherwise returns an array of tracks with as many tracks as different instruments
     private getTracksWithEventsOfChannel(channel: number, song: SongJson): Track[] {
-        let returnObject: Track[] = [];
+        const returnObject: Track[] = [];
         // First look for all events of this channel and put them on an array
         let channelEvents: MidiEvent[] = [];
         for (let i = 0; i < song.tracksCount; i++) {
-            for (let j = 0; j < song.tracks[i].events.length; j++) {
-                let event = song.tracks[i].events[j];
+            for (const event of song.tracks[i].events) {
                 if (event.channel === channel && !event.isChannelIndependent()) {
-                    let clonedEvent = new MidiEvent(event);
+                    const clonedEvent = new MidiEvent(event);
                     channelEvents.push(clonedEvent);
                 }
             }
@@ -218,8 +193,8 @@ export class Midi2JsonService {
         let currentTrack: Track = returnObject[returnObject.length - 1];
         // We need this variable because there may be no patch changes events, and the instrument default to the piano
         let patchChangesEventsSoFar = 0;
-        for (let i = 0; i < channelEvents.length; i++) {
-            let event = new MidiEvent(channelEvents[i]);
+        for (const channelEvent of channelEvents) {
+            const event = new MidiEvent(channelEvent);
             if (event.isPatchChange()) {
                 if (patchChangesEventsSoFar > 0) {
                     // Terminate this track
@@ -259,16 +234,14 @@ export class Midi2JsonService {
         return tracks;
     }
 
-
     private getTrackWithChannelIndependentEvents(song: SongJson): Track {
         // First look for all events not channel specific and put them on a single track
         // Initially the events may be out of order, because they may come from different tracks
-        let returnTrack = new Track([]);
+        const returnTrack = new Track([]);
         for (let i = 0; i < song.tracksCount; i++) {
-            for (let j = 0; j < song.tracks[i].events.length; j++) {
-                let event = song.tracks[i].events[j];
+            for (const event of song.tracks[i].events) {
                 if (event.isChannelIndependent()) {
-                    let clonedEvent = new MidiEvent(event);
+                    const clonedEvent = new MidiEvent(event);
                     returnTrack.events.push(clonedEvent);
                 }
             }
@@ -298,18 +271,8 @@ export class Midi2JsonService {
         return returnArray;
     }
 
-    // converts from json version to binary midi
-    public getMidiBytes(midiObject: SongJson) {
-        let buffer = this.getMidiHeader(midiObject.tracks.length, midiObject.ticksPerBeat);
-        for (let k = 0; k < midiObject.tracks.length; k++) {
-            let bufferTrack = this.getMidiTrackBytes(midiObject.tracks[k]);
-            buffer = ConcatenateUint8Array.concat(buffer, bufferTrack);
-        };
-        return buffer;
-    }
-
     private getMidiHeader(tracks, ticksPerBeat): Uint8Array {
-        let buffer = new Uint8Array(14);
+        const buffer = new Uint8Array(14);
         buffer[0] = 0x4D;
         buffer[1] = 0x54;
         buffer[2] = 0x68;
@@ -328,10 +291,10 @@ export class Midi2JsonService {
     }
 
     private getMidiTrackBytes(track: Track): Uint8Array {
-        let trackHeaderLength = 8;
+        const trackHeaderLength = 8;
         // Reserve a space that is enough for sure for the array
-        let maxLength = track.events.length * 15 + 100;
-        let buffer = new Uint8Array(maxLength);
+        const maxLength = track.events.length * 15 + 100;
+        const buffer = new Uint8Array(maxLength);
         // Magic word of Midi File
         buffer[0] = 0x4D;
         buffer[1] = 0x54;
@@ -341,11 +304,11 @@ export class Midi2JsonService {
         // bytes 4 to 7 is the length of the track that we still don't know
         for (let i = 0; i < track.events.length; i++) {
             let deltaLength: number;
-            let event = track.events[i];
-            let delta: number = event.delta;
+            const event = track.events[i];
+            const delta: number = event.delta;
 
             // Delta time calculation. Delta is written in groups of 7 bits, not bytes
-            let indexAtBeginningOfEvent = j;
+            const indexAtBeginningOfEvent = j;
             if (delta > (0x80 * 0x80 * 0x80)) {
                 buffer[j++] = (delta >> 21) & 0x7F | 0x80;
             }
@@ -491,7 +454,7 @@ export class Midi2JsonService {
         };
         // End of track
         // Now that we know the track length, save it
-        let trackLength = j - trackHeaderLength; // has to substract 8 because the length is measured not from
+        const trackLength = j - trackHeaderLength; // has to substract 8 because the length is measured not from
         // the beginning of the track, but from the first byte after
         // the length bytes
 
@@ -504,6 +467,39 @@ export class Midi2JsonService {
 
     private getNthByteOfInteger(integer, n) {
         return Math.floor(integer / (Math.pow(0x100, n))) & 0xFF;
+    }
+
+    // Converts from binary midi to json version
+    // Uses an external library "midiFile"
+    public getMidiObject(readBuffer: ArrayBuffer): SongJson {
+        // Creating the MIDIFile instance
+        const midiFile = new MIDIFile(readBuffer);
+        const format: number = midiFile.header.getFormat(); // 0, 1 or 2
+        const ticksPerBeat: number = midiFile.header.getTicksPerBeat();
+        const base64 = Binary2base64.convert(readBuffer);
+        const hash = Md5.hashStr(base64).toString();
+        let returnObject = new SongJson(format, ticksPerBeat, [], hash);
+        const tracksCount: number = midiFile.header.getTracksCount();
+
+        for (let i = 0; i < tracksCount; i++) {
+            // The external library "midiFile" produces a json object that is bascically
+            // a set of tracks, each containing a sequence of events. 
+            // We add an extra property to each event, that is the time in ticks 
+            // since the beginning of the song
+            returnObject.tracks[i] = this.addTimeSinceBeginningField(midiFile.getTrackEvents(i));
+        }
+        returnObject = this.normalizeSongJson(returnObject);
+        return returnObject;
+    };
+
+    // converts from json version to binary midi
+    public getMidiBytes(midiObject: SongJson) {
+        let buffer = this.getMidiHeader(midiObject.tracks.length, midiObject.ticksPerBeat);
+        for (const mo of midiObject.tracks) {
+            const bufferTrack = this.getMidiTrackBytes(mo);
+            buffer = ConcatenateUint8Array.concat(buffer, bufferTrack);
+        };
+        return buffer;
     }
 
 

@@ -6,7 +6,7 @@ import { AudioControlsEventsService } from '../services/audio-controls-events.se
 import { AudioControlsService } from '../services/audio-controls.service';
 import { AudioControlsEventTypes } from '../services/audio-controls-event-types.enum';
 import { AudioControlEvent } from '../services/audio-control-event';
-import { MidiFileCheckerService } from '../../../songs-library/services/midi-file-checker.service';
+import { MidiFileCheckerService } from '../../../../core/models/midi//midi-file-checker.service';
 
 declare var MIDIjs: any;
 
@@ -116,7 +116,7 @@ export class AudioButtonsComponent implements OnChanges {
 
     reset() {
         this.audioControlsEventsService.raiseEvent(AudioControlsEventTypes.reset);
-        this.resetTempo();
+        window.location.reload();
     }
     //  used for debugging. Allows to save buffer to disk
     // private downloadeame(filename, buffer) {

@@ -63,8 +63,6 @@ export class SongsLibraryComponent implements OnInit {
     this.songService.getSongById(songId).subscribe(
       data => {
         const eventData: any = {_id: songId, songName: data.name, bandName: data.band.name };
-        console.log("esta es la data que mando con el evento")
-        console.log(eventData)
         this.songsLibraryEventsService.raiseEvent(SongsLibraryEventTypes.songSelected, eventData);
       }
     );

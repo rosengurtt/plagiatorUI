@@ -1,6 +1,17 @@
+<div class="row" *ngIf='song.name' style="padding:25px;">
+    <div style="border:2px;border-color:white;border-style: solid;width:100%;padding:10px">
+        <div style="display:inline">
+            <h1 style="display:inline;padding-right: 100px;">Song: {{song.name}}</h1>
+            <h1 style="display:inline">Band: {{song.band.name}}</h1>
+        </div>
+        <div style="float: right;">
+            <button type="button" class="btn btn-danger audio-button" (click)="closePanel(song._id)">
+                <span class="material-icons md-24">close</span>
+            </button>
+        </div>
+    </div>
+</div>
 <div class="row" *ngIf='song.name'>
-    <div style="padding:25px">Song: {{song.name}} - {{song._id}}</div>
-    <div style="padding:25px">Band: {{song.band.name}}</div>
     <div style="padding:35px;width:100%" *ngIf='songJson'>
         <audio-controls [song]="songJson"></audio-controls>
         <song-display [song]="songJson" [isCollapsed]="isCollapsed"></song-display>

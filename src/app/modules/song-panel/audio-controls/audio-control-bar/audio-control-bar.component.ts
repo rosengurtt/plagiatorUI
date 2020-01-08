@@ -4,7 +4,8 @@ import { Subscription } from 'rxjs';
 import { AudioControlsService } from '../services/audio-controls.service';
 import { AudioControlsEventsService } from '../services/audio-controls-events.service';
 import { AudioControlsEventTypes } from '../services/audio-controls-event-types.enum';
-import { Midi2JsonService } from '../../../songs-library/services/midi-to-json.service';
+// import { Midi2JsonService } from '../../../songs-library/services/midi-to-json.service';
+// import  { Midi2Json } from '../../../../core/models/midi/song-json/song-json';
 import { SongJson } from '../../../../core/models/midi/song-json/song-json';
 import { SliderComponent } from '../../slider/slider.component';
 import { AudioControlEvent } from '../services/audio-control-event';
@@ -26,7 +27,7 @@ export class AudioControlBarComponent implements OnChanges {
     sliderLastReportedPosition = 0;
 
     constructor(
-        private midi2JsonService: Midi2JsonService,
+      //  private midi2JsonService: Midi2JsonService,
         private audioControlsService: AudioControlsService,
         private audioControlsEventsService: AudioControlsEventsService) {
         this.subscriptionAudioEvents = this.audioControlsEventsService

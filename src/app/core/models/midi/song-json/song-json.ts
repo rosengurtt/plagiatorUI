@@ -18,13 +18,20 @@ export class SongJson {
     private _durationInSeconds: number = -1;
     private _tempoEvents: MidiEvent[];
     private _timeSignature: TimeSignature;
+    private _originalMidi: ArrayBuffer;
 
 
-    constructor(format?: number, ticksPerBeat?: number, tracks?: MidiEvent[][], hash?: string) {
+    constructor(
+            format?: number, 
+            ticksPerBeat?: number, 
+            tracks?: MidiEvent[][], 
+            hash?: string,
+            midiBytes?: ArrayBuffer) {
         this.format = format;
         this.ticksPerBeat = ticksPerBeat;
         this.tracks = [];
         this._hash = hash;
+        this._originalMidi = midiBytes;
         if (tracks) {
             for (let i = 0; i < tracks.length; i++) {
                 this.tracks.push(new Track(tracks[i]));
@@ -35,7 +42,6 @@ export class SongJson {
     get hash(): string {
         return this._hash;
     }
-
 
     get tracksCount(): number {
         return this.tracks.length;
@@ -66,6 +72,17 @@ export class SongJson {
             this._tempoEvents = this.getTempoEvents();
         }
         return this._tempoEvents;
+    }
+
+    get timeSignature(): TimeSignature {
+        if (!this._timeSignature) {
+            this._timeSignature = this.getTimeSignature();
+        }
+        return this._timeSignature;
+    }
+
+    get originalMidi(): ArrayBuffer{
+        return this._originalMidi;
     }
 
     // Returns the lowest and highest pitches in a track
@@ -202,34 +219,6 @@ export class SongJson {
         return noteArray;
     }
 
-    // Returns a new song that is a slice of the current song, starting from a specific tick
-    public getSliceStartingFromTick(tick: number, mutedTracks: number[], volumeTracks: number[], tempo: number): SongJson {
-        let slice: SongJson = new SongJson(this.format, this.ticksPerBeat, null);
-        slice.tracks = [];
-        for (let i = 0; i < this.tracks.length; i++) {
-            // if track is muted, ignore it
-            if (mutedTracks.indexOf(i) > -1) {
-                continue;
-            }
-            if (volumeTracks.length === 0) {
-                slice.tracks.push(this.tracks[i].getSliceStartingFromTick(tick));
-            }
-            else {
-                slice.tracks.push(this.tracks[i].getSliceStartingFromTick(tick, volumeTracks[i]));
-            }
-
-        }
-        slice.changeTempo(tempo);
-        return slice;
-    }
-
-    get timeSignature(): TimeSignature {
-        if (!this._timeSignature) {
-            this._timeSignature = this.getTimeSignature();
-        }
-        return this._timeSignature;
-    }
-
     private getTimeSignature(): TimeSignature {
         for (let i = 0; i < this.tracks.length; i++) {
             let timeSignatureEvents = this.tracks[i].getEventsOfType(MidiEventType.TimeSignature)
@@ -262,6 +251,7 @@ export class SongJson {
                 return 0;
         }
     }
+    
     public changeTempo(tempoBPM: number) {
         // we have to con convert from bits per minute to microseconds per beat
         let newTempo = 1000000 / (tempoBPM / 60);
@@ -281,5 +271,26 @@ export class SongJson {
                 this.tempoEvents[i].tempoBPM *= changeRatio;
             }
         }
+    }
+
+    // Returns a new song that is a slice of the current song, starting from a specific tick
+    public getSliceStartingFromTick(tick: number, mutedTracks: number[], volumeTracks: number[], tempo: number): SongJson {
+        let slice: SongJson = new SongJson(this.format, this.ticksPerBeat, null);
+        slice.tracks = [];
+        for (let i = 0; i < this.tracks.length; i++) {
+            // if track is muted, ignore it
+            if (mutedTracks.indexOf(i) > -1) {
+                continue;
+            }
+            if (volumeTracks.length === 0) {
+                slice.tracks.push(this.tracks[i].getSliceStartingFromTick(tick));
+            }
+            else {
+                slice.tracks.push(this.tracks[i].getSliceStartingFromTick(tick, volumeTracks[i]));
+            }
+
+        }
+        slice.changeTempo(tempo);
+        return slice;
     }
 }
