@@ -7,7 +7,7 @@ import { Tonic } from './tonic';
 import { ScaleMode } from './scale-mode.enum';
 
 export class SongTonality {
-    private tonicsSoret: Tonic[];
+    private tonic: Tonic[];
     private notesTracks: NotesTrack[];
     private songDurationInTicks: number;
     private songTicksPerBeat: number;
@@ -39,10 +39,10 @@ export class SongTonality {
     }
 
     get tonics() {
-        if (!this.tonicsSoret) {
+        if (!this.tonic) {
             this.analizeSong();
         }
-        return this.tonicsSoret;
+        return this.tonic;
     }
     public getRepresentation(beat: number) {
         let returnValue: string;
@@ -100,7 +100,7 @@ export class SongTonality {
     }
 
     private analizeSong() {
-        this.tonicsSoret = [];
+        this.tonic = [];
         this.probabilities = this.initializeProbabilitiesArray(24);
         this.notePower = this.initializeProbabilitiesArray(12);
         for (const track of this.notesTracks) {
@@ -125,7 +125,7 @@ export class SongTonality {
         }
 
         for (let beat = 1; beat <= this.numberOfBeats; beat++) {
-            this.tonicsSoret[beat] = this.getTonicAtBeatFirstTry(beat);
+            this.tonic[beat] = this.getTonicAtBeatFirstTry(beat);
         }
         this.correctMinorMajorProblem();
     }
@@ -224,13 +224,13 @@ export class SongTonality {
     private correctMinorMajorProblem() {
         for (let beat = 1; beat < this.numberOfBeats - 1; beat++) {
             // We only may have to make a correction when it was calculated as major
-            if (this.tonicsSoret[beat].mode === ScaleMode.Major) {
-                const pitchMajor = this.tonicsSoret[beat].pitch;
+            if (this.tonic[beat].mode === ScaleMode.Major) {
+                const pitchMajor = this.tonic[beat].pitch;
                 const pitchMinor = (pitchMajor + 9) % 12;
                 let j = 1;
                 // find the next n consecutive beats with the same tonic
-                while (this.tonicsSoret[beat + j].pitch === this.tonicsSoret[beat].pitch &&
-                    this.tonicsSoret[beat + j].mode === this.tonicsSoret[beat].mode &&
+                while (this.tonic[beat + j].pitch === this.tonic[beat].pitch &&
+                    this.tonic[beat + j].mode === this.tonic[beat].mode &&
                     beat + j < this.numberOfBeats) {
                     j++;
                 }
@@ -246,8 +246,8 @@ export class SongTonality {
                 // we now compare the 2 powers to decide which one is correct
                 if (powerOfMin > powerOfMaj) {
                     for (let i = beat; i < beat + j - 1; i++) {
-                        this.tonicsSoret[i].pitch = pitchMinor;
-                        this.tonicsSoret[i].mode = ScaleMode.Minor;
+                        this.tonic[i].pitch = pitchMinor;
+                        this.tonic[i].mode = ScaleMode.Minor;
                     }
                 }
             }

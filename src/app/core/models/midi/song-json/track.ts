@@ -4,6 +4,7 @@ import { Binary2String } from '../../../helpers/binary-to-string';
 import { Channel } from './channel';
 import { Instrument } from '../midi-codes/instrument.enum';
 import { MidiEventType } from '../midi-codes/midi-event-type';
+import { TrackType } from './track-type.enum';
 
 // The MidiFile.js object returns tracks as a simple array of midi events
 // We add some information that is generic to the track, like the channel and the instrument
@@ -12,6 +13,10 @@ export class Track {
     private _channel: number;
     private _instrument: Instrument;
     private _volume: number;
+    private _trackType: TrackType;
+    private _highestPitch: number;
+    private _averagePitch: number;
+    private _lowestPitch: number;
     public events: MidiEvent[];
     readonly _maxVolume = 127;
 
@@ -38,6 +43,26 @@ export class Track {
         return this._volume;
     }
 
+    get HighestPitch(): number {
+        if (!this._highestPitch) {
+            this.calculatePitchStats();
+        }
+        return this._highestPitch;
+    }
+
+    get LowestPitch(): number {
+        if (!this._lowestPitch) {
+            this.calculatePitchStats();
+        }
+        return this._lowestPitch;
+    }
+
+    get AveragePitch(): number {
+        if (!this._averagePitch) {
+            this.calculatePitchStats();
+        }
+        return this._averagePitch;
+    }
     get Notes(): MidiEvent[] {
         return this.getEventsOfType(MidiEventType.Note, MidiEventType.PitchBend);
     }
@@ -53,6 +78,13 @@ export class Track {
             }
         }
         return this._instrument;
+    }
+
+    get TrackType(): TrackType {
+        if (!this._trackType) {
+            this._trackType = this.getTrackType();
+        }
+        return this._trackType;
     }
 
     // It makes an average if there are many volume values. In theory the average should
@@ -113,6 +145,40 @@ export class Track {
         }
         return returnArray;
     }
+
+    private getTrackType(): TrackType {
+        if (this.channel === 9) return TrackType.Drums;
+
+        let unison = 0;
+        const thresholdForChords = 0.5;
+        const notesInSong = this.getEventsOfType(MidiEventType.Note);
+        for (const note of notesInSong) {
+            if (note.delta < 5) unison += 1;
+        }
+        const proportionOfNotesPlayedTogether = unison / notesInSong.length;
+        if (proportionOfNotesPlayedTogether > thresholdForChords) return TrackType.Chords;
+
+        const highestAverageOfBass = 45;
+        if (this.AveragePitch < highestAverageOfBass) return TrackType.Bass;
+
+        return TrackType.Melody;
+    }
+
+    private calculatePitchStats() {
+        let highest = 0;
+        let lowest = 128;
+        let sumPitches = 0;
+        const noteEvents = this.getEventsOfType(MidiEventType.Note);
+        for (const note of noteEvents) {
+            if (highest < note.param1) highest = note.param1;
+            if (lowest > note.param1) lowest = note.param1;
+            sumPitches += note.param1;
+        }
+        this._highestPitch = highest;
+        this._lowestPitch = lowest;
+        this._averagePitch = sumPitches / noteEvents.length;
+    }
+
 
     public getEventsOfType(type1: MidiEventType, type2?: MidiEventType): MidiEvent[] {
         let returnArray: MidiEvent[] = [];

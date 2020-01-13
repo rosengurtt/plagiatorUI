@@ -61,7 +61,9 @@ export class AudioButtonsComponent implements OnChanges {
 
     playSong() {
         this.audioControlsEventsService.raiseEvent(AudioControlsEventTypes.play);
-
+    }
+    playOriginalMidi() {
+        this.audioControlsEventsService.raiseEvent(AudioControlsEventTypes.playOriginalMidi);
     }
 
     pauseSong() {

@@ -43,6 +43,12 @@ export class AudioControlsService {
                 this.songPartToPlay = this.getSongBytesFromStartingPosition();
                 MIDIjs.play(this.songPartToPlay);
                 break;
+            case AudioControlsEventTypes.playOriginalMidi:
+                this.isPlaying = true;
+                this.sliderPositionAtStart = 0;
+                console.log(this.song.originalMidi)
+                MIDIjs.play(this.song.originalMidi);
+                break;
 
             case AudioControlsEventTypes.pause:
                 this.isPlaying = false;

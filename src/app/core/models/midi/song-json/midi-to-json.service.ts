@@ -51,7 +51,7 @@ export class Midi2JsonService {
     // We order the tracks on ascending order of instruments, except for the drums track 
     // (that uses channel 10) that goes at the end
     private normalizeSongJson(song: SongJson): SongJson {
-        const returnObject = new SongJson(song.format, song.ticksPerBeat, [], song.hash);
+        const returnObject = new SongJson(song.format, song.ticksPerBeat, [], song.hash, song.originalMidi);
 
         returnObject.tracks.push(this.getTrackWithChannelIndependentEvents(song));
 
@@ -478,7 +478,7 @@ export class Midi2JsonService {
         const ticksPerBeat: number = midiFile.header.getTicksPerBeat();
         const base64 = Binary2base64.convert(readBuffer);
         const hash = Md5.hashStr(base64).toString();
-        let returnObject = new SongJson(format, ticksPerBeat, [], hash);
+        let returnObject = new SongJson(format, ticksPerBeat, [], hash, readBuffer);
         const tracksCount: number = midiFile.header.getTracksCount();
 
         for (let i = 0; i < tracksCount; i++) {

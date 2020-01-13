@@ -7,6 +7,7 @@ import { AudioControlsEventTypes } from '../../song-panel/audio-controls/service
 import { AudioControlEvent } from '../../song-panel/audio-controls/services/audio-control-event';
 import { GeneralMidiInstrument } from '../,,/../../../core/models/midi/midi-codes/general-midi-instrument';
 import { TrackDisplayService } from './services/track-display.service';
+import { TrackType } from 'src/app/core/models/midi/song-json/track-type.enum';
 
 declare var MIDIjs: any;
 
@@ -34,6 +35,8 @@ export class TrackDisplayComponent implements AfterViewChecked, OnInit {
     trackIsSolo: boolean;
     soloUnsolo: string; // text that shows if track is playing solo or not
     initialVolume: number;
+    trackType: string;
+    averagePitch: number;
 
     constructor(
         private trackDisplayService: TrackDisplayService,
@@ -82,8 +85,9 @@ export class TrackDisplayComponent implements AfterViewChecked, OnInit {
         } else {
             this.soloUnsolo = '';
         }
-        const thisTrack = this.song.tracks[this.trackNumber];
-        this.initialVolume = thisTrack.Volume;
+        this.initialVolume = track.Volume;
+        this.trackType = TrackType[track.TrackType];
+        this.averagePitch = track.AveragePitch.toFixed();
     }
 
     ngAfterViewChecked() {
