@@ -16,23 +16,23 @@ export class SongsRepositoryService {
     constructor(private http: HttpClient) { }
 
     getStyles(): Observable<any> {
-        return this.getMusicItem('styles');
+        return this.getMusicItem('style');
     }
 
     getBands(styleId?: string): Observable<any> {
         if (styleId) {
-        return this.getMusicItem('bands?styleId=' + styleId);
+        return this.getMusicItem('band?styleId=' + styleId);
         }
-        return this.getMusicItem('bands');
+        return this.getMusicItem('band');
     }
     getSongsForBand(bandId: string): Observable<any> {
-        return this.getMusicItem('songs?bandId=' + bandId);
+        return this.getMusicItem('song?bandId=' + bandId);
     }
     getSongsForStyle(styleId: string): Observable<any> {
-        return this.getMusicItem('songs?styleId=' + styleId);
+        return this.getMusicItem('song?styleId=' + styleId);
     }
     getAllSongs(): Observable<any> {
-        return this.getMusicItem('songs');
+        return this.getMusicItem('song');
     }
 
 
@@ -42,7 +42,7 @@ export class SongsRepositoryService {
         // tslint:disable-next-line: only-arrow-functions
         return new Promise(function(resolve, reject) {
             const xhr = new XMLHttpRequest();
-            xhr.open('GET', self.songLibraryUrl + 'songs/midi/' + id, true);
+            xhr.open('GET', self.songLibraryUrl + 'song/midi/' + id, true);
 
             // Ask for the result as an ArrayBuffer.
             xhr.responseType = 'arraybuffer';
@@ -54,7 +54,7 @@ export class SongsRepositoryService {
         });
     }
     getSongById(id: string): Observable<any>  {
-        return this.getMusicItem('songs/' + id);
+        return this.getMusicItem('song/' + id);
     }
 
     private   getMusicItem(path: string): Observable<any> {

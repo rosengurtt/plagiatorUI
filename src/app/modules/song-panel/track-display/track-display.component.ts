@@ -87,7 +87,7 @@ export class TrackDisplayComponent implements AfterViewChecked, OnInit {
         }
         this.initialVolume = track.Volume;
         this.trackType = TrackType[track.TrackType];
-        this.averagePitch = track.AveragePitch.toFixed();
+        this.averagePitch = track.AveragePitch;
     }
 
     ngAfterViewChecked() {
