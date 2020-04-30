@@ -20,7 +20,7 @@
     "@angular/platform-browser-dynamic": "~8.2.3",
     "@angular/router": "~8.2.3",
     "bootstrap": "^4.4.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "midifile": "^2.0.0",
     "rxjs": "~6.4.0",
     "ts-md5": "^1.2.7",
